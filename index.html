@@ -1039,9 +1039,9 @@
   function updateGreeting() {
     const h = new Date().getHours();
     let greet;
-    if (h < 6) greet = 'Gute Nacht';
-    else if (h < 12) greet = 'Guten Morgen';
-    else if (h < 17) greet = 'Guten Nachmittag';
+    if (h < 5) greet = 'Gute Nacht';
+    else if (h < 10) greet = 'Guten Morgen';
+    else if (h < 17) greet = 'Guten Tag';
     else if (h < 22) greet = 'Guten Abend';
     else greet = 'Gute Nacht';
     document.getElementById('greeting').innerHTML = greet + ', <strong>Anter</strong>';
@@ -1094,24 +1094,45 @@
   loadWeather();
   setInterval(loadWeather, 600000);
 
-  // --- Theme toggle ---
+  // --- Theme (auto by time of day, manual override) ---
+  function getAutoTheme() {
+    const h = new Date().getHours();
+    return (h >= 6 && h < 20) ? 'light' : 'dark';
+  }
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.getElementById('theme-icon').textContent = 'dark';
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      document.getElementById('theme-icon').textContent = 'light';
+    }
+  }
+
   function toggleTheme() {
-    const html = document.documentElement;
-    const current = html.getAttribute('data-theme');
+    const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-theme', next === 'dark' ? '' : 'light');
-    if (next === 'dark') html.removeAttribute('data-theme');
-    localStorage.setItem('theme', next);
-    document.getElementById('theme-icon').textContent = next === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme-override', next);
+    applyTheme(next);
   }
 
   (function initTheme() {
-    const saved = localStorage.getItem('theme') || 'dark';
-    if (saved === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.getElementById('theme-icon').textContent = 'dark';
+    const override = localStorage.getItem('theme-override');
+    if (override) {
+      applyTheme(override);
+    } else {
+      applyTheme(getAutoTheme());
     }
   })();
+
+  // Clear manual override every minute if time-based theme changes
+  setInterval(() => {
+    const override = localStorage.getItem('theme-override');
+    if (override && override !== getAutoTheme()) return; // user wants different, keep it
+    localStorage.removeItem('theme-override');
+    applyTheme(getAutoTheme());
+  }, 60000);
 
   // --- Search (Cmd+K) ---
   function openSearch() {

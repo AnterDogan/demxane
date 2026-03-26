@@ -14,6 +14,7 @@ const SERVICES = [
   { id: 'hearr', check: 'https://hearr.demxane.com' },
   { id: 'barroque', check: 'https://barroque.demxane.com' },
   { id: 'obscurr', check: 'https://obscurr.demxane.com' },
+  { id: 'habich', check: 'https://habich.demxane.com' },
   { id: 'sonarr', check: 'https://sonarr.demxane.com' },
   { id: 'radarr', check: 'https://radarr.demxane.com' },
   { id: 'sabnzbd', check: 'https://sab.demxane.com' },

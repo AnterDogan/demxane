@@ -760,6 +760,107 @@
   }
 
   /* Responsive */
+  /* Login overlay */
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.4s ease;
+  }
+
+  .login-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 340px;
+    padding: 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .login-brand {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+
+  .login-brand span { color: var(--accent); }
+
+  .login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .login-input::placeholder { color: var(--text-dim); }
+  .login-input:focus { border-color: var(--accent); }
+
+  .login-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 0.25rem;
+  }
+
+  .login-btn:hover { opacity: 0.85; }
+
+  .login-error {
+    font-size: 0.72rem;
+    color: var(--status-offline);
+    text-align: center;
+    min-height: 1.2em;
+  }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .logout-btn:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+  }
+
   @media (max-width: 600px) {
     .container { padding: 0 1.5rem; }
     header { padding: 2.5rem 0 1rem; margin-bottom: 1rem; }
@@ -799,6 +900,18 @@
 </head>
 <body>
 
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-brand">dem<span>xane</span></div>
+    <form class="login-form" id="login-form" autocomplete="on">
+      <input class="login-input" id="login-email" type="email" placeholder="E-Mail" autocomplete="email" required>
+      <input class="login-input" id="login-password" type="password" placeholder="Passwort" autocomplete="current-password" required>
+      <button class="login-btn" type="submit">Anmelden</button>
+      <div class="login-error" id="login-error"></div>
+    </form>
+  </div>
+</div>
+
 <div class="bg-gradient"></div>
 <div class="grain"></div>
 <div class="vignette"></div>
@@ -816,6 +929,7 @@
       </a>
       <div class="header-right">
         <div class="header-controls">
+          <button class="logout-btn" onclick="logout()" title="Abmelden">logout</button>
           <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
             <span id="theme-icon">light</span>
           </button>
@@ -1092,6 +1206,46 @@
 </div>
 
 <script>
+  // --- Auth ---
+  const AUTH_EMAIL = 'anter.ms.dogan@gmail.com';
+  const AUTH_HASH = '8c2c369b3a3fc155a21e19f443070a918992f99bc4f3a7242e9646d690c4637b';
+
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function isLoggedIn() {
+    return localStorage.getItem('demxane-auth') === '1';
+  }
+
+  function showApp() {
+    document.getElementById('login-overlay').classList.add('hidden');
+  }
+
+  function logout() {
+    localStorage.removeItem('demxane-auth');
+    location.reload();
+  }
+
+  if (isLoggedIn()) {
+    showApp();
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const pass = document.getElementById('login-password').value;
+    const hash = await sha256(pass);
+
+    if (email === AUTH_EMAIL && hash === AUTH_HASH) {
+      localStorage.setItem('demxane-auth', '1');
+      showApp();
+    } else {
+      document.getElementById('login-error').textContent = 'Falsche Anmeldedaten';
+    }
+  });
+
   // --- Services registry ---
   const services = [];
   document.querySelectorAll('.card[data-service]').forEach(card => {

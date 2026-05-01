@@ -861,6 +861,65 @@
     border-color: var(--border-hover);
   }
 
+  .login-divider {
+    width: 100%;
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-dim);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+  }
+
+  .login-divider::before,
+  .login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .login-bio-btn {
+    max-width: 340px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .login-bio-btn:hover {
+    border-color: var(--accent);
+    opacity: 1;
+  }
+
+  .bio-setup-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .bio-setup-btn:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+  }
+
+  .bio-setup-btn.registered {
+    color: var(--accent);
+    border-color: rgba(200,169,110,0.3);
+  }
+
   @media (max-width: 600px) {
     .container { padding: 0 1.5rem; }
     header { padding: 2.5rem 0 1rem; margin-bottom: 1rem; }
@@ -909,6 +968,13 @@
       <button class="login-btn" type="submit">Anmelden</button>
       <div class="login-error" id="login-error"></div>
     </form>
+    <div class="login-divider" id="login-divider" style="display:none">
+      <span>oder</span>
+    </div>
+    <button class="login-btn login-bio-btn" id="login-bio-btn" style="display:none" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><path d="M12 11c0-1.1.9-2 2-2s2 .9 2 2v3c0 2.8-2.2 5-5 5H9.5"/><path d="M7 15v-3c0-2.8 2.2-5 5-5 1.1 0 2.1.4 2.9 1"/><path d="M4 15v-3c0-4.4 3.6-8 8-8s8 3.6 8 8v3"/><circle cx="12" cy="15" r="1"/></svg>
+      Biometrie
+    </button>
   </div>
 </div>
 
@@ -929,6 +995,7 @@
       </a>
       <div class="header-right">
         <div class="header-controls">
+          <button class="bio-setup-btn" id="bio-setup-btn" onclick="setupBiometric()" title="Biometrie einrichten" style="display:none">&#9684; biometrie</button>
           <button class="logout-btn" onclick="logout()" title="Abmelden">logout</button>
           <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
             <span id="theme-icon">light</span>
@@ -1228,8 +1295,35 @@
     location.reload();
   }
 
+  function hasBiometricCredential() {
+    return !!localStorage.getItem('demxane-bio-cred');
+  }
+
+  function showBiometricLogin() {
+    if (hasBiometricCredential() && window.PublicKeyCredential) {
+      document.getElementById('login-divider').style.display = '';
+      document.getElementById('login-bio-btn').style.display = '';
+    }
+  }
+
+  function showBiometricSetup() {
+    if (window.PublicKeyCredential) {
+      const btn = document.getElementById('bio-setup-btn');
+      btn.style.display = '';
+      if (hasBiometricCredential()) {
+        btn.classList.add('registered');
+        btn.innerHTML = '&#9684; biometrie &#10003;';
+        btn.title = 'Biometrie ist eingerichtet (klicken zum Entfernen)';
+        btn.onclick = removeBiometric;
+      }
+    }
+  }
+
   if (isLoggedIn()) {
     showApp();
+    showBiometricSetup();
+  } else {
+    showBiometricLogin();
   }
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -1241,10 +1335,91 @@
     if (email === AUTH_EMAIL && hash === AUTH_HASH) {
       localStorage.setItem('demxane-auth', '1');
       showApp();
+      showBiometricSetup();
     } else {
       document.getElementById('login-error').textContent = 'Falsche Anmeldedaten';
     }
   });
+
+  document.getElementById('login-bio-btn').addEventListener('click', authenticateWithBiometric);
+
+  async function setupBiometric() {
+    try {
+      const userId = new TextEncoder().encode(AUTH_EMAIL);
+      const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+      const credential = await navigator.credentials.create({
+        publicKey: {
+          challenge,
+          rp: { name: 'demxane', id: location.hostname },
+          user: {
+            id: userId,
+            name: AUTH_EMAIL,
+            displayName: 'Anter'
+          },
+          pubKeyCredParams: [
+            { alg: -7, type: 'public-key' },
+            { alg: -257, type: 'public-key' }
+          ],
+          authenticatorSelection: {
+            authenticatorAttachment: 'platform',
+            userVerification: 'required',
+            residentKey: 'preferred'
+          },
+          timeout: 60000
+        }
+      });
+
+      const credId = btoa(String.fromCharCode(...new Uint8Array(credential.rawId)));
+      localStorage.setItem('demxane-bio-cred', credId);
+
+      const btn = document.getElementById('bio-setup-btn');
+      btn.classList.add('registered');
+      btn.innerHTML = '&#9684; biometrie &#10003;';
+      btn.title = 'Biometrie ist eingerichtet (klicken zum Entfernen)';
+      btn.onclick = removeBiometric;
+    } catch (err) {
+      if (err.name !== 'NotAllowedError') {
+        console.error('Biometric setup failed:', err);
+      }
+    }
+  }
+
+  function removeBiometric() {
+    localStorage.removeItem('demxane-bio-cred');
+    const btn = document.getElementById('bio-setup-btn');
+    btn.classList.remove('registered');
+    btn.innerHTML = '&#9684; biometrie';
+    btn.title = 'Biometrie einrichten';
+    btn.onclick = setupBiometric;
+  }
+
+  async function authenticateWithBiometric() {
+    try {
+      const credId = localStorage.getItem('demxane-bio-cred');
+      if (!credId) return;
+
+      const rawId = Uint8Array.from(atob(credId), c => c.charCodeAt(0));
+      const challenge = crypto.getRandomValues(new Uint8Array(32));
+
+      await navigator.credentials.get({
+        publicKey: {
+          challenge,
+          allowCredentials: [{ id: rawId, type: 'public-key', transports: ['internal'] }],
+          userVerification: 'required',
+          timeout: 60000
+        }
+      });
+
+      localStorage.setItem('demxane-auth', '1');
+      showApp();
+      showBiometricSetup();
+    } catch (err) {
+      if (err.name !== 'NotAllowedError') {
+        document.getElementById('login-error').textContent = 'Biometrie fehlgeschlagen';
+      }
+    }
+  }
 
   // --- Services registry ---
   const services = [];

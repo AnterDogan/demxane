@@ -14,6 +14,8 @@ Was passiert:
   2. Access-App "demxane" für demxane.com, Sitzung 30 Tage, nur anter.ms.dogan@gmail.com.
   3. Access-App "demxane push" für demxane.com/api/push mit Bypass, damit der Mini seine
      Auslastung weiter melden kann (der Endpunkt prüft selbst den PUSH_TOKEN).
+  4. Access-Apps "demxane datenschutz" für /datenschutz(.html) mit Bypass: die Seite muss für
+     die Google-OAuth-App öffentlich erreichbar sein.
 """
 import argparse, json, os, sys, urllib.request, urllib.error
 
@@ -115,6 +117,19 @@ else:
        {"name": "demxane push", "type": "self_hosted", "domain": push_domain, "self_hosted_domains": [push_domain],
         "session_duration": "24h", "app_launcher_visible": False,
         "policies": [{"name": "Mini darf melden", "decision": "bypass", "precedence": 1,
+                      "include": [{"everyone": {}}]}]})
+
+print("=== Öffentliche Datenschutz-Seite (/datenschutz) ===")
+# Google verlangt für die OAuth-App einen erreichbaren Link zur Datenschutzerklärung.
+for path in ("/datenschutz", "/datenschutz.html"):
+    dom = HOST + path
+    if any(a.get("domain") == dom for a in apps):
+        print(f"  App existiert bereits: {dom}")
+        continue
+    do("Bypass-App für " + dom + " anlegen", "POST", f"/accounts/{ACCOUNT}/access/apps",
+       {"name": "demxane datenschutz", "type": "self_hosted", "domain": dom, "self_hosted_domains": [dom],
+        "session_duration": "24h", "app_launcher_visible": False,
+        "policies": [{"name": "Öffentlich", "decision": "bypass", "precedence": 1,
                       "include": [{"everyone": {}}]}]})
 
 print("fertig" + (" (dry-run, nichts geändert)" if DRY else ""))

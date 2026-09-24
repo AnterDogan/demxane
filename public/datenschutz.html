@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>demxane — datenschutz</title>
+<meta name="description" content="Datenschutzerklärung für demxane.com und die Anmeldung zu den privaten Diensten.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0c0c0c">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0c;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e4dd;
+    --text-muted: rgba(232,228,221,0.65);
+    --text-dim: rgba(232,228,221,0.42);
+    --accent: #c8a96e;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f5f2ed;
+      --border: rgba(0,0,0,0.08);
+      --text: #1a1816;
+      --text-muted: rgba(26,24,22,0.7);
+      --text-dim: rgba(26,24,22,0.5);
+      --accent: #8a6a2e;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant', Georgia, serif;
+    font-size: 20px;
+    line-height: 1.55;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 64px 16px 96px; }
+  .mark {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 { font-weight: 300; font-size: clamp(36px, 7vw, 52px); line-height: 1.1; margin: 12px 0 8px; }
+  h2 {
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 44px 0 10px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  p, li { color: var(--text-muted); }
+  p { margin: 0 0 14px; }
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  strong { color: var(--text); font-weight: 400; }
+  .stand { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <div class="mark">demxane</div>
+  <h1>Datenschutz</h1>
+  <p class="stand">Stand: 24. September 2026</p>
+
+  <h2>Worum es geht</h2>
+  <p>demxane.com ist ein privates Angebot von <strong>Anter Dogan</strong> (Schweiz). Es bündelt Dienste,
+    die er für sich, seine Familie und Freunde betreibt. Die Seite ist nicht öffentlich nutzbar und verfolgt
+    keine geschäftlichen Zwecke.</p>
+
+  <h2>Anmeldung</h2>
+  <p>Die Dienste sind durch eine Anmeldung geschützt, die über <strong>Cloudflare Access</strong> läuft.
+    Angemeldet wird entweder mit einem Google-Konto oder mit einem Code, der per E-Mail kommt.</p>
+  <p>Bei der Anmeldung mit Google werden nur <strong>Name und E-Mail-Adresse</strong> übermittelt.
+    Sie dienen einzig dazu, zu prüfen, ob die Person auf der Liste der Berechtigten steht.
+    Es gibt keinen Zugriff auf Kontakte, Kalender, Dateien oder andere Google-Daten.</p>
+
+  <h2>Was gespeichert wird</h2>
+  <ul>
+    <li>Nach der Anmeldung setzt Cloudflare ein <strong>Anmelde-Cookie</strong>, damit man nicht bei jedem Aufruf
+      neu gefragt wird. Es läuft nach spätestens 30 Tagen ab.</li>
+    <li>Cloudflare protokolliert Anmeldungen (Zeitpunkt, E-Mail-Adresse, IP-Adresse) zur Absicherung des Zugangs.</li>
+    <li>Die einzelnen Dienste speichern, was für ihre Funktion nötig ist, etwa Anfragen oder Einstellungen.</li>
+  </ul>
+
+  <h2>Was nicht passiert</h2>
+  <ul>
+    <li>Keine Werbung, keine Analyse- oder Tracking-Werkzeuge.</li>
+    <li>Keine Weitergabe oder Verkauf von Daten an Dritte.</li>
+  </ul>
+
+  <h2>Beteiligte Dienstleister</h2>
+  <p><strong>Cloudflare</strong> (Anmeldung, Auslieferung der Seite) und <strong>Google</strong> (nur wer sich
+    mit Google anmeldet). Beide verarbeiten Daten nach ihren eigenen Datenschutzbestimmungen, teils auch
+    ausserhalb der Schweiz.</p>
+
+  <h2>Auskunft und Löschung</h2>
+  <p>Wer wissen möchte, welche Daten über ihn gespeichert sind, oder den Zugang löschen lassen will,
+    wendet sich direkt an Anter Dogan. Den Zugriff eines Google-Kontos kann man zudem jederzeit selbst unter
+    <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a> widerrufen.</p>
+</main>
+</body>
+</html>

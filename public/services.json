@@ -9,7 +9,6 @@
     { "id": "immich", "name": "Immich", "url": "https://immich.demxane.com", "desc": "Fotos & Videos, unsere eigene Foto-Cloud", "group": "alltag", "icon": "◫", "host": "mini" },
     { "id": "audiobookshelf", "name": "Audiobookshelf", "url": "https://audiobookshelf.demxane.com", "desc": "Hörbücher & Podcasts", "group": "alltag", "icon": "◉", "host": "mini" },
     { "id": "seerr", "name": "Seerr", "url": "https://seerr.demxane.com", "desc": "Filme & Serien wünschen", "group": "alltag", "icon": "⊕", "host": "mini" },
-    { "id": "swiparr", "name": "Swiparr", "url": "https://swiparr.demxane.com", "desc": "Tinder für Filme, gemeinsam entscheiden was läuft", "group": "alltag", "icon": "⇄", "host": "mini", "tag": "self-built" },
     { "id": "drop", "name": "Drop", "url": "https://drop.demxane.com", "desc": "Dateien ablegen & teilen", "group": "alltag", "icon": "⇩", "host": "mini", "tag": "self-built" },
     { "id": "books", "name": "Shelfmark", "url": "https://books.demxane.com", "desc": "E-Books suchen & in die Bibliothek laden", "group": "alltag", "icon": "▤", "host": "mini" },
     { "id": "kobo", "name": "Send to Kobo", "url": "https://kobo.demxane.com", "desc": "E-Books an den Kobo schicken", "group": "alltag", "icon": "⇥", "host": "mini", "tag": "self-built" },

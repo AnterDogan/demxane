@@ -42,7 +42,7 @@
     --status-warn: #d9a441;
     --status-offline: #e05555;
     --status-unknown: rgba(232,228,221,0.3);
-    --hero-h: clamp(460px, 64vh, 720px);
+    --hero-h: clamp(520px, 80vh, 880px);
     --hero-tint: rgba(12,12,12,0.22);
     --hero-scrim: rgba(0,0,0,0.42);
     --hero-shadow: 0 2px 24px rgba(0,0,0,0.35);
@@ -118,12 +118,12 @@
     inset: 0;
     background: linear-gradient(to bottom,
       transparent 0%,
-      transparent 26%,
-      color-mix(in srgb, var(--bg) 8%, transparent) 38%,
-      color-mix(in srgb, var(--bg) 24%, transparent) 50%,
-      color-mix(in srgb, var(--bg) 48%, transparent) 61%,
-      color-mix(in srgb, var(--bg) 72%, transparent) 72%,
-      color-mix(in srgb, var(--bg) 90%, transparent) 84%,
+      transparent 50%,
+      color-mix(in srgb, var(--bg) 10%, transparent) 60%,
+      color-mix(in srgb, var(--bg) 30%, transparent) 69%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 77%,
+      color-mix(in srgb, var(--bg) 78%, transparent) 84%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 90%,
       color-mix(in srgb, var(--bg) 98%, transparent) 94%,
       var(--bg) 100%);
   }
@@ -154,15 +154,6 @@
 
   .wordmark { display: flex; flex-direction: column; gap: 0.2rem; text-decoration: none; color: inherit; }
   .wordmark-row { display: flex; align-items: center; gap: 0.6rem; overflow: visible; }
-
-  .hourglass-icon {
-    width: clamp(1.8rem, 4vw, 2.8rem);
-    height: auto;
-    aspect-ratio: 40 / 56;
-    flex-shrink: 0;
-    filter: drop-shadow(0 0 8px rgba(200,169,110,0.15));
-    overflow: visible;
-  }
 
   .wordmark h1 {
     font-family: 'Cormorant', serif;
@@ -603,7 +594,6 @@
     .header-top { flex-direction: row; align-items: center; gap: 0.75rem; }
     .wordmark h1 { font-size: 1.8rem; }
     .wordmark .tagline { display: none; }
-    .hourglass-icon { width: 1.5rem; }
     .status-bar span { display: none; }
     .greeting-bar { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 0.5rem; padding: 0.7rem 0; }
     .greeting { font-size: 1.05rem; }
@@ -632,7 +622,6 @@
     <div class="header-top">
       <a class="wordmark" href="/">
         <div class="wordmark-row">
-          <canvas id="hourglass-canvas" class="hourglass-icon"></canvas>
           <h1>dem<span>xane</span></h1>
         </div>
         <div class="tagline">personal infrastructure · mini-von-anter</div>
@@ -1168,173 +1157,6 @@
   });
   setInterval(refreshStatus, 60000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshStatus(); });
-
-  // ============================================================
-  // Sanduhr
-  // ============================================================
-  (function() {
-    const canvas = $('hourglass-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const S = 3;
-    canvas.width = 40 * S;
-    canvas.height = 56 * S;
-
-    const CX = 20, TOP_Y = 5, BOT_Y = 51;
-    const NECK_TOP = 26, NECK_BOT = 30, NECK_MID = 28;
-    const EDGE_L = 6, EDGE_R = 34;
-    const TOTAL = 60;
-    const GRAVITY = 150;
-    const FLIP_DUR = 1.0;
-
-    function edgesAt(y) {
-      if (y <= TOP_Y) return { l: EDGE_L, r: EDGE_R };
-      if (y >= BOT_Y) return { l: EDGE_L, r: EDGE_R };
-      if (y < NECK_TOP) {
-        const t = (y - TOP_Y) / (NECK_TOP - TOP_Y);
-        return { l: EDGE_L + (CX - EDGE_L) * t, r: EDGE_R - (EDGE_R - CX) * t };
-      }
-      if (y > NECK_BOT) {
-        const t = (y - NECK_BOT) / (BOT_Y - NECK_BOT);
-        return { l: CX - (CX - EDGE_L) * t, r: CX + (EDGE_R - CX) * t };
-      }
-      return { l: CX - 0.5, r: CX + 0.5 };
-    }
-
-    let settled = 0, grains = [], nextGrainTime = 0;
-    let t0 = performance.now(), prevTime = t0;
-    let flipping = false, flipT0 = 0;
-
-    function topSurfaceY() {
-      const f = Math.max(0, 1 - settled / TOTAL);
-      return NECK_TOP - Math.sqrt(f) * (NECK_TOP - TOP_Y);
-    }
-    function pileTopY() {
-      const f = Math.max(0, settled / TOTAL);
-      return BOT_Y - Math.sqrt(f) * (BOT_Y - NECK_BOT);
-    }
-    function getColors() {
-      const s = getComputedStyle(document.documentElement);
-      return {
-        text: s.getPropertyValue('--text').trim() || '#e8e4dd',
-        accent: s.getPropertyValue('--accent').trim() || '#c8a96e'
-      };
-    }
-    function rrect(x, y, w, h, r) {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-      ctx.closePath();
-      ctx.fill();
-    }
-    function drawFrame(c) {
-      ctx.fillStyle = c.text;
-      ctx.globalAlpha = 0.9;
-      rrect(2*S, 1*S, 36*S, 4*S, 2*S);
-      rrect(2*S, 51*S, 36*S, 4*S, 2*S);
-      ctx.strokeStyle = c.text;
-      ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 2.5 * S;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.beginPath();
-      ctx.moveTo(EDGE_L*S, TOP_Y*S); ctx.lineTo(CX*S, NECK_TOP*S); ctx.lineTo(EDGE_R*S, TOP_Y*S);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(EDGE_L*S, BOT_Y*S); ctx.lineTo(CX*S, NECK_BOT*S); ctx.lineTo(EDGE_R*S, BOT_Y*S);
-      ctx.stroke();
-    }
-    function drawSandRegion(yTop, yBot, color, alpha, convex) {
-      if (yTop >= yBot - 0.5) return;
-      const eT = edgesAt(yTop);
-      const eB = edgesAt(yBot);
-      ctx.fillStyle = color;
-      ctx.globalAlpha = alpha;
-      ctx.beginPath();
-      if (convex) {
-        ctx.moveTo(eT.l * S, yTop * S);
-        ctx.quadraticCurveTo(CX * S, (yTop - 1.5) * S, eT.r * S, yTop * S);
-      } else {
-        ctx.moveTo(eT.l * S, yTop * S);
-        ctx.quadraticCurveTo(CX * S, (yTop + 2) * S, eT.r * S, yTop * S);
-      }
-      ctx.lineTo(eB.r * S, yBot * S);
-      ctx.lineTo(eB.l * S, yBot * S);
-      ctx.closePath();
-      ctx.fill();
-    }
-    function frame(now) {
-      const dt = Math.min((now - prevTime) / 1000, 0.1);
-      prevTime = now;
-      const elapsed = (now - t0) / 1000;
-      const c = getColors();
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.save();
-
-      if (flipping) {
-        const ft = (now - flipT0) / 1000;
-        if (ft >= FLIP_DUR) {
-          flipping = false;
-          canvas.style.transform = '';
-          settled = 0; grains = []; nextGrainTime = 0;
-          t0 = now; prevTime = now;
-        } else {
-          const t = ft / FLIP_DUR;
-          const ease = t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2) / 2;
-          canvas.style.transform = 'rotate(' + (ease * 180) + 'deg)';
-        }
-      }
-
-      drawFrame(c);
-
-      if (flipping) {
-        drawSandRegion(NECK_BOT + 0.5, BOT_Y - 0.5, c.accent, 0.65, true);
-      } else {
-        while (elapsed >= nextGrainTime && settled + grains.length < TOTAL) {
-          grains.push({ y: NECK_MID, vy: 0 });
-          nextGrainTime += 1;
-        }
-        const py = pileTopY();
-        for (let i = grains.length - 1; i >= 0; i--) {
-          const g = grains[i];
-          g.vy += GRAVITY * dt;
-          g.y += g.vy * dt;
-          if (g.y >= py - 0.3) { settled++; grains.splice(i, 1); }
-        }
-        const sy = topSurfaceY();
-        if (sy < NECK_TOP - 1) drawSandRegion(sy + 0.5, NECK_TOP - 0.5, c.accent, 0.3, false);
-        if (settled > 0) drawSandRegion(pileTopY(), BOT_Y - 0.5, c.accent, 0.65, true);
-        if (settled < TOTAL) {
-          ctx.strokeStyle = c.accent;
-          ctx.globalAlpha = 0.45;
-          ctx.lineWidth = 1.0 * S;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(CX*S, (NECK_TOP - 0.5)*S);
-          ctx.lineTo(CX*S, (NECK_BOT + 1)*S);
-          ctx.stroke();
-        }
-        for (const g of grains) {
-          ctx.fillStyle = c.accent;
-          ctx.globalAlpha = 0.9;
-          ctx.beginPath();
-          ctx.arc(CX * S, g.y * S, 1.3 * S, 0, Math.PI * 2);
-          ctx.fill();
-        }
-        if (settled >= TOTAL && grains.length === 0) {
-          flipping = true;
-          flipT0 = performance.now();
-        }
-      }
-      ctx.restore();
-      requestAnimationFrame(frame);
-    }
-    requestAnimationFrame(frame);
-  })();
 </script>
 </body>
 </html>

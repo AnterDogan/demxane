@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>demxane — logins</title>
+<meta name="description" content="Wer sich bei welchem demxane-Dienst wie anmeldet, wer Zugang hat und wie jemand Neues dazukommt.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0c0c0c">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Cormorant:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<script>
+  // Gleiche Regel wie die Startseite: tagsüber hell, nachts dunkel, Umschalter dort merkt sich die Wahl.
+  (function () {
+    let override = null;
+    try { override = localStorage.getItem('theme-override'); } catch {}
+    const h = new Date().getHours();
+    const theme = override || ((h >= 6 && h < 20) ? 'light' : 'dark');
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+  })();
+</script>
+<style>
+  :root {
+    --bg: #0c0c0c;
+    --bg2: #141414;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e4dd;
+    --text-muted: rgba(232,228,221,0.65);
+    --text-dim: rgba(232,228,221,0.42);
+    --accent: #c8a96e;
+    --accent-glow: rgba(200,169,110,0.12);
+    --you: #c8a96e;
+    --all: #6fb3a6;
+    --all-glow: rgba(111,179,166,0.12);
+    --warn: #d9a441;
+    --warn-glow: rgba(217,164,65,0.12);
+  }
+  [data-theme="light"] {
+    --bg: #f5f2ed;
+    --bg2: #eae6df;
+    --border: rgba(0,0,0,0.08);
+    --text: #1a1816;
+    --text-muted: rgba(26,24,22,0.7);
+    --text-dim: rgba(26,24,22,0.5);
+    --accent: #8a6a2e;
+    --accent-glow: rgba(154,123,63,0.1);
+    --you: #8a6a2e;
+    --all: #2f7a6c;
+    --all-glow: rgba(47,122,108,0.1);
+    --warn: #9a6a12;
+    --warn-glow: rgba(217,164,65,0.16);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant', Georgia, serif;
+    font-size: 20px;
+    line-height: 1.55;
+  }
+  main { max-width: 720px; margin: 0 auto; padding: 56px 16px 96px; }
+  .mono { font-family: 'DM Mono', monospace; }
+  .mark {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .mark:hover { text-decoration: underline; }
+  h1 { font-weight: 300; font-size: clamp(36px, 7vw, 52px); line-height: 1.1; margin: 12px 0 8px; }
+  h2 {
+    font-family: 'DM Mono', monospace;
+    font-weight: 400;
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 48px 0 12px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  h3 { font-weight: 400; font-size: 24px; margin: 0; line-height: 1.2; }
+  p, li, dd { color: var(--text-muted); }
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin: 4px 0; }
+  strong { color: var(--text); font-weight: 400; }
+  .stand { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-dim); }
+  a { color: var(--accent); }
+  .addr { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent); letter-spacing: 0.02em; word-break: break-all; }
+  kbd { font-family: 'DM Mono', monospace; font-size: 13px; border: 1px solid var(--border); padding: 0 6px; }
+
+  .pill {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border: 1px solid currentColor;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .pill.you { color: var(--you); background: var(--accent-glow); }
+  .pill.all { color: var(--all); background: var(--all-glow); }
+
+  .toc { border: 1px solid var(--border); background: var(--bg2); padding: 14px 18px; margin-top: 28px; }
+  .toc .mono { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim); }
+  .toc ol { margin: 8px 0 0; }
+  .toc a { text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+
+  .doors { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 16px 0; }
+  .door { border: 1px solid var(--border); background: var(--bg2); padding: 16px 18px; }
+  .door h3 { font-size: 22px; }
+  .door p { font-size: 18px; margin: 8px 0 0; }
+
+  .card { border: 1px solid var(--border); background: var(--bg2); padding: 16px 18px; margin: 14px 0; }
+  .card header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; }
+  dl { display: grid; grid-template-columns: max-content 1fr; column-gap: 16px; row-gap: 6px; margin: 12px 0 0; font-size: 18px; }
+  dt { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); padding-top: 5px; }
+  dd { margin: 0; }
+  @media (max-width: 520px) { dl { grid-template-columns: 1fr; row-gap: 2px; } dt { margin-top: 8px; } }
+
+  .note { border-left: 2px solid var(--accent); background: var(--accent-glow); padding: 10px 14px; margin: 14px 0; font-size: 18px; }
+  .note.warn { border-color: var(--warn); background: var(--warn-glow); }
+  .note p { margin: 0; }
+
+  .tbl { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 18px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { font-family: 'DM Mono', monospace; font-weight: 400; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim); }
+  td { color: var(--text-muted); }
+  td:first-child { color: var(--text); }
+
+  .back { display: inline-block; margin-top: 48px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; }
+  .back:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<main>
+  <a class="mark" href="/">demxane</a>
+  <h1>Logins</h1>
+  <p class="stand">Stand: 25. September 2026 · wer meldet sich wo wie an</p>
+
+  <nav class="toc" aria-label="Inhalt">
+    <div class="mono">Inhalt</div>
+    <ol>
+      <li><a href="#tueren">Die zwei Arten von Türen</a></li>
+      <li><a href="#alle">Dienste für alle</a></li>
+      <li><a href="#anter">Nur für Anter: die Cloudflare-Anmeldung</a></li>
+      <li><a href="#eigene">Eigene Apps ohne Cloudflare-Anmeldung</a></li>
+      <li><a href="#neu">Jemand Neues soll dazukommen</a></li>
+      <li><a href="#hilfe">Wenn es klemmt</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="tueren">1 · Die zwei Arten von Türen</h2>
+  <p>Jeder Dienst hat eine von zwei Türen. Das ist der ganze Trick, um den Überblick zu behalten.</p>
+  <div class="doors">
+    <div class="door">
+      <h3>Eigenes Konto im Dienst <span class="pill all">für alle</span></h3>
+      <p>Die App oder Seite hat ihre eigene Anmeldung: Plex-Konto, E-Mail und Passwort, Name und PIN. Wer ein Konto hat, kommt rein, von überall, auch mit den Handy-Apps. Das gilt für alles, was Nathi, Sema, Gülden und die anderen benutzen.</p>
+    </div>
+    <div class="door">
+      <h3>Cloudflare-Anmeldung davor <span class="pill you">nur Anter</span></h3>
+      <p>Bevor die Seite überhaupt erscheint, fragt Cloudflare: „Wer bist du?“ Durch diese Tür kommt nur Anter mit seiner Google-Adresse. Sie steht vor allen Verwaltungs-Diensten. Einmal anmelden, dann 30 Tage Ruhe pro Gerät. Der Knopf <strong>abmelden</strong> oben auf der Startseite beendet diese Anmeldung für alle geschützten Dienste auf einmal.</p>
+    </div>
+  </div>
+  <div class="note"><p>Ein paar Dienste haben <strong>beide</strong> Türen hintereinander: erst Cloudflare, dann das eigene Passwort. Das steht jeweils dabei.</p></div>
+
+  <h2 id="alle">2 · Dienste für alle</h2>
+  <p>Diese Dienste haben eigene Konten. Die Cloudflare-Anmeldung spielt hier keine Rolle, deshalb funktionieren auch die Handy-Apps.</p>
+
+  <article class="card">
+    <header><h3>Plex</h3><span class="addr">app.plex.tv</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Mit dem eigenen Plex-Konto (Plex-App oder plex.tv). Der Server „Mac mini“ erscheint, sobald Anter das Konto freigegeben hat.</dd>
+      <dt>Wer</dt><dd>Anter (Besitzer), Nathi (nathaliemikeladze), Sema (samimontana), Fabian (Murtock).</dd>
+      <dt>Neu</dt><dd>Anter: Plex → Einstellungen → Freigeben („Manage Library Access“) → Plex-Benutzername oder E-Mail einladen, Bibliotheken auswählen.</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>Seerr – Filme und Serien wünschen</h3><span class="addr">seerr.demxane.com</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Knopf <strong>„Mit Plex anmelden“</strong> für alle mit Plex-Konto. Gülden und Sefa haben stattdessen ein Seerr-Konto mit E-Mail und Passwort („Mit Seerr anmelden“).</dd>
+      <dt>Wer</dt><dd>Anter (Verwalter), Nathi, Sema, Gülden (Miro nutzt ihr Konto), Sefa.</dd>
+      <dt>Besonderheit</dt><dd>Filme werden automatisch genehmigt. Serienwünsche von Güldens Konto warten auf Anters Freigabe.</dd>
+      <dt>Neu</dt><dd>Mit Plex-Konto: nach der Plex-Freigabe einfach „Mit Plex anmelden“, Seerr legt das Konto selbst an. Ohne Plex: Anter legt in Seerr → Benutzer ein Konto mit E-Mail und Passwort an.</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>Immich – Fotos</h3><span class="addr">immich.demxane.com</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>E-Mail und Passwort, im Browser oder in der Immich-App (Server-Adresse <span class="addr">https://immich.demxane.com</span>).</dd>
+      <dt>Wer</dt><dd>Anter (Verwalter), Nathi.</dd>
+      <dt>Neu</dt><dd>Anter legt das Konto an: Immich → Verwaltung → Benutzer → „Benutzer erstellen“. Selbst registrieren geht nicht.</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>Audiobookshelf – Hörbücher</h3><span class="addr">audiobookshelf.demxane.com</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Benutzername und Passwort, im Browser oder in der Audiobookshelf-App (Server-Adresse eintippen).</dd>
+      <dt>Wer</dt><dd>Anter (Verwalter), Nathi.</dd>
+      <dt>Neu</dt><dd>Anter legt das Konto an: Einstellungen → Benutzer → „Benutzer hinzufügen“.</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>Kobo – Bücher auf den E-Reader</h3><span class="addr">kobo.demxane.com</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Zuerst den eigenen <strong>Namen antippen</strong>. Am Kobo dann die <strong>PIN</strong>, am Handy oder Rechner (zum Hochladen) das <strong>Passwort</strong>. Der Kobo merkt sich die Anmeldung über das „Login-Buch“ in „Meine Bücher“.</dd>
+      <dt>Wer</dt><dd>Anter, Nathi, Sema.</dd>
+      <dt>Sperre</dt><dd>Nach 5 falschen Eingaben ist die Anmeldung 15 Minuten gesperrt.</dd>
+      <dt>Neu</dt><dd>Anter trägt Name, Passwort und PIN in der Konfiguration des Dienstes ein (<span class="addr">users.json</span> auf dem Mini).</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>drop – Dateien teilen</h3><span class="addr">drop.demxane.com</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Einen geteilten Link (<span class="addr">drop.demxane.com/d/…</span>) kann jeder ohne Anmeldung öffnen. Hochladen kann nur, wer den Schlüssel kennt: einmal im Browser eingeben, dann ein Jahr Ruhe.</dd>
+      <dt>Wer</dt><dd>Hochladen: Anter. Links öffnen: alle, denen Anter einen schickt. Links laufen nach 24 Stunden ab.</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>Minecraft-Server</h3><span class="addr">minecraft.demxane.com · Port 25565</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Kein Login. Es kommt nur rein, wessen Minecraft-Name auf der Liste steht.</dd>
+      <dt>Wer</dt><dd>JoeMaminator42 (Anter), banaNasKitty (Nathi).</dd>
+      <dt>Neu</dt><dd>Anter trägt den Minecraft-Namen in der Crafty-Konsole ein: <kbd>whitelist add Name</kbd>.</dd>
+    </dl>
+  </article>
+
+  <article class="card">
+    <header><h3>Kleine Alltags-Apps</h3></header>
+    <dl>
+      <dt>To-do</dt><dd><span class="addr">todo.demxane.com</span> · Namenskachel (Anter oder Nathi) antippen, dann PIN. Nach 5 Fehlversuchen 15 Minuten Sperre. Fingerabdruck oder Gesicht einmal einrichten, dann entfällt die PIN.</dd>
+      <dt>ich bringe</dt><dd><span class="addr">ichbringe.demxane.com</span> · Kein Login. Jede Liste hat einen eigenen Link, den man teilt.</dd>
+      <dt>Grillfest</dt><dd><span class="addr">grillfest.demxane.com</span> · Gäste melden sich nur mit ihrem Namen. Wird nach dem Fest abgeschaltet.</dd>
+      <dt>habich</dt><dd><span class="addr">habich.demxane.com</span> · Benutzername und Passwort, Konto legt man selbst an, solange Anter die Registrierung offen hat.</dd>
+    </dl>
+  </article>
+
+  <h2 id="anter">3 · Nur für Anter: die Cloudflare-Anmeldung</h2>
+  <p>Vor allen Verwaltungs-Diensten steht seit September 2026 eine Anmeldeseite von Cloudflare. Sie sieht bei jedem Dienst gleich aus: eine Seite mit der Überschrift „cinemanter“ und zwei Knöpfen.</p>
+  <h3>So meldest du dich an</h3>
+  <ol>
+    <li>Dienst aufrufen, zum Beispiel <span class="addr">radarr.demxane.com</span>. Die Cloudflare-Seite erscheint.</li>
+    <li>Entweder <strong>„Sign in with Google“</strong> mit anter.ms.dogan@gmail.com. Oder <strong>E-Mail-Adresse eintippen</strong>, dann kommt ein Code per Mail, den du eingibst.</li>
+    <li>Fertig. Dieser Browser auf diesem Gerät ist jetzt <strong>30 Tage</strong> für alle diese Dienste angemeldet. Jedes Gerät und jeder Browser meldet sich einmal für sich an.</li>
+  </ol>
+  <div class="note"><p>Die Google-Anmeldung klappt nur im normalen Browser (Safari, Chrome). In Apps, die eine Webseite eingebettet zeigen, blockiert Google sie. Dann den Weg über den Code per E-Mail nehmen. Abmelden: Knopf <strong>abmelden</strong> oben auf der Startseite.</p></div>
+
+  <h3>Was hinter dieser Tür liegt</h3>
+  <div class="tbl">
+  <table>
+    <thead><tr><th>Dienst</th><th>Adresse</th><th>Nach Cloudflare noch …</th></tr></thead>
+    <tbody>
+      <tr><td>Startseite mit Status</td><td class="addr">demxane.com</td><td>nichts</td></tr>
+      <tr><td>Radarr (Filme)</td><td class="addr">radarr.demxane.com</td><td>nichts</td></tr>
+      <tr><td>Sonarr (Serien)</td><td class="addr">sonarr.demxane.com</td><td>nichts</td></tr>
+      <tr><td>SABnzbd (Downloads)</td><td class="addr">sab.demxane.com</td><td>nichts</td></tr>
+      <tr><td>Bazarr (Untertitel)</td><td class="addr">bazarr.demxane.com</td><td>nichts</td></tr>
+      <tr><td>Prowlarr</td><td class="addr">prowlarr.demxane.com</td><td>nichts</td></tr>
+      <tr><td>Shelfmark (Bücher suchen)</td><td class="addr">shelfmark.demxane.com<br>books.demxane.com</td><td>nichts</td></tr>
+      <tr><td>Obscurr (YouTube-Musik)</td><td class="addr">obscurr.demxane.com</td><td>Plex-Login der App</td></tr>
+      <tr><td>Hearr (Musik-Verwaltung)</td><td class="addr">hearr.demxane.com</td><td>Plex-Login oder Passwort der App</td></tr>
+      <tr><td>teacherr</td><td class="addr">teacherr.demxane.com</td><td>Benutzername anterdogan + Passwort</td></tr>
+      <tr><td>Portainer (Docker)</td><td class="addr">portainer.demxane.com</td><td>eigener Portainer-Login</td></tr>
+      <tr><td>Minecraft-Panel (Crafty)</td><td class="addr">minecraft.demxane.com</td><td>eigener Crafty-Login</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><p>Handy-Apps wie <strong>Helmarr</strong> reden mit Radarr, Sonarr, SABnzbd, Bazarr und Prowlarr über deren API-Schlüssel und brauchen die Cloudflare-Anmeldung nicht. Genauso der Obscurr-Kurzbefehl auf dem iPhone. Diese Ausnahmen sind bewusst so eingerichtet.</p></div>
+  <div class="note warn"><p><strong>Hearr und Obscurr</strong> liegen jetzt hinter dieser Tür, deshalb kommt niemand ausser Anter mehr hinein. In Hearr gibt es noch Plex-Konten für Nathi und Sema. Braucht eine von beiden Hearr, muss ihre E-Mail-Adresse auf die Cloudflare-Liste (Abschnitt 5).</p></div>
+  <p>Im Heimnetz (WLAN zu Hause) sind diese Dienste über ihre Port-Adressen ohne jede Anmeldung erreichbar, zum Beispiel <span class="addr">192.168.1.108:7878</span> für Radarr. Deshalb gehören Gäste ins Gäste-WLAN.</p>
+
+  <h2 id="eigene">4 · Eigene Apps ohne Cloudflare-Anmeldung</h2>
+  <article class="card">
+    <header><h3>Barroque – klassische Musik</h3><span class="addr">barroque.demxane.com</span></header>
+    <dl>
+      <dt>Anmelden</dt><dd>Im Browser: <strong>„Mit Plex anmelden“</strong> (oder Benutzername und Passwort). In der Android-App auf dem FiiO: beim ersten Start die Server-Adresse <span class="addr">https://barroque.demxane.com</span> stehen lassen, dann ebenfalls mit Plex anmelden. Die Anmeldung hält 90 Tage.</dd>
+      <dt>Wer</dt><dd>Anter. Andere könnten sich mit Plex anmelden, wenn Anter ihnen den Plex-Server freigegeben hat; sie werden dann automatisch als normale Nutzer angelegt.</dd>
+      <dt>Warum so</dt><dd>Die Android-App käme an der Cloudflare-Seite nicht vorbei. Stattdessen wurden die Lücken im Code geschlossen (September 2026).</dd>
+    </dl>
+  </article>
+
+  <h2 id="neu">5 · Jemand Neues soll dazukommen</h2>
+  <div class="tbl">
+  <table>
+    <thead><tr><th>Wofür</th><th>Was Anter tut</th><th>Was die Person tut</th></tr></thead>
+    <tbody>
+      <tr><td>Filme und Serien schauen</td><td>Plex-Konto der Person freigeben</td><td>Plex-App installieren, mit eigenem Plex-Konto anmelden</td></tr>
+      <tr><td>Filme und Serien wünschen</td><td>nichts (mit Plex-Konto) oder Seerr-Konto anlegen</td><td>seerr.demxane.com → „Mit Plex anmelden“</td></tr>
+      <tr><td>Fotos</td><td>Konto in Immich anlegen</td><td>Immich-App: Server-Adresse eintragen, anmelden</td></tr>
+      <tr><td>Hörbücher</td><td>Konto in Audiobookshelf anlegen</td><td>App: Server-Adresse eintragen, anmelden</td></tr>
+      <tr><td>Bücher auf den Kobo</td><td>Person in users.json eintragen (Name, Passwort, PIN)</td><td>Am Kobo: Name antippen, PIN, Login-Buch laden</td></tr>
+      <tr><td>Minecraft</td><td>Minecraft-Namen in die Liste (whitelist add)</td><td>Server minecraft.demxane.com hinzufügen</td></tr>
+      <tr><td>Verwaltungs-Dienste (Radarr &amp; Co.)</td><td>E-Mail in die Liste <span class="addr">ALLOW_EMAILS</span> in <span class="addr">mac-mini/scripts/cf-services-access.py</span>, Skript laufen lassen</td><td>Anmelden per Code an diese E-Mail. Google-Anmeldung geht nur, wenn die Adresse im Google-Projekt als Testnutzer steht</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="note"><p>Merksatz: Je weniger Leute auf der Cloudflare-Liste stehen, desto besser. Für alles, was andere wirklich brauchen, gibt es eigene Konten in der App.</p></div>
+
+  <h2 id="hilfe">6 · Wenn es klemmt</h2>
+  <ul>
+    <li><strong>Die Cloudflare-Seite kommt wieder, obwohl ich mich schon angemeldet hatte.</strong> Die 30 Tage sind um, oder es ist ein anderer Browser oder ein anderes Gerät. Einfach neu anmelden.</li>
+    <li><strong>Google-Anmeldung meldet einen Fehler.</strong> Passiert in eingebetteten Browsern (in Apps). Code per E-Mail nehmen oder die Seite in Safari beziehungsweise Chrome öffnen.</li>
+    <li><strong>„Gesperrt nach zu vielen Fehlversuchen“</strong> bei Kobo, drop oder der To-do-App: 15 Minuten warten, dann geht es wieder.</li>
+    <li><strong>Eine Handy-App bekommt nur eine Anmeldeseite statt Daten.</strong> Die App spricht einen Dienst hinter der Cloudflare-Tür an, für den es keine Ausnahme gibt. Für den Schnittstellen-Pfad lässt sich eine Ausnahme anlegen (wie bei Helmarr).</li>
+    <li><strong>Nathi oder Sema kommen in einen Dienst nicht rein.</strong> Prüfen, ob der Dienst in Abschnitt 2 steht. Steht er in Abschnitt 3, ist er absichtlich nur für Anter.</li>
+    <li><strong>Passwörter und Schlüssel</strong> liegen auf dem MacBook in <span class="addr">mac-mini/secrets.env</span>. Nichts davon steht auf dieser Seite.</li>
+  </ul>
+
+  <a class="back" href="/">← zur Startseite</a>
+</main>
+</body>
+</html>

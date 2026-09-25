@@ -197,6 +197,7 @@
     transition: all 0.2s ease;
   }
   .theme-toggle:hover { border-color: var(--border-hover); color: var(--text-muted); }
+  a.theme-toggle { text-decoration: none; line-height: 1.15; }
 
   .status-bar {
     display: flex;
@@ -638,6 +639,8 @@
       </a>
       <div class="header-right">
         <div class="header-controls">
+          <a class="theme-toggle" href="/logins" title="Wer meldet sich wo wie an">logins</a>
+          <a class="theme-toggle" href="https://cinemanter.cloudflareaccess.com/cdn-cgi/access/logout" title="Von der Cloudflare-Anmeldung abmelden (gilt für alle geschützten Dienste)">abmelden</a>
           <button class="theme-toggle" onclick="toggleTheme()" title="Hell/Dunkel umschalten">
             <span id="theme-icon">light</span>
           </button>

@@ -168,7 +168,7 @@
 
   .wordmark .tagline {
     font-size: 0.72rem;
-    color: var(--text-dim);
+    color: var(--text-muted);
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
@@ -177,9 +177,11 @@
   .header-controls { display: flex; align-items: center; gap: 0.75rem; }
 
   .theme-toggle {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
+    background: color-mix(in srgb, var(--bg) 62%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--border-hover);
+    color: var(--text-muted);
     font-family: 'DM Mono', monospace;
     font-size: 0.7rem;
     letter-spacing: 0.1em;
@@ -187,7 +189,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
   }
-  .theme-toggle:hover { border-color: var(--border-hover); color: var(--text-muted); }
+  .theme-toggle:hover { border-color: var(--text-dim); color: var(--text); }
   a.theme-toggle { text-decoration: none; line-height: 1.15; }
 
   .status-bar {
@@ -195,8 +197,12 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.72rem;
-    color: var(--text-muted);
+    color: var(--text);
     letter-spacing: 0.1em;
+    padding: 4px 10px;
+    background: color-mix(in srgb, var(--bg) 62%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
   }
 
   .status-dot {
